@@ -13,10 +13,6 @@ router.get('/', (req, res) => {
         model: Product,
         attributes: ['product_name', 'price', 'stock', 'category_id']
       },
-      {
-        model: ProductTag,
-        attributes: ['id', 'product_id', 'tag_id']
-      }
     ]
   })
     .then(dbTagData => res.json(dbTagData))
@@ -36,12 +32,14 @@ router.get('/:id', (req, res) => {
     include: [
       {
         model: Product,
-        attributes: ['id', 'product_name', 'price', 'stock', 'category_id']
+        attributes: ['id', 'product_name', 'price', 'stock', 'category_id'],
+        indlude: [
+          {
+            model: ProductTag,
+            attributes: ['id', 'product_id', 'tag_id']
+          }
+        ]
       },
-      {
-        model: ProductTag,
-        attributes: ['id', 'product_id', 'tag_id']
-      }
     ]
   })
     .then(dbTagData => {
@@ -72,10 +70,9 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
   // update a tag's name by its `id` value
   Tag.update(req.body, {
-    individualHooks: true,
     where: {
       id: req.params.id
-    }
+    },
   })
     .then(dbTagData => {
       if (!dbTagData[0]) {
@@ -98,7 +95,7 @@ router.delete('/:id', (req, res) => {
     }
   })
     .then(dbTagData => {
-      if (!dbTagData[0]) {
+      if (!dbTagData) {
         res.status(404).json({ message: 'No tag found with this id!' });
         return;
       }
